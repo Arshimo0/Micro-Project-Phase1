@@ -23,5 +23,16 @@ void parse_64bit_string(const char *str, uint32_t *high, uint32_t *low) {
 }
 
 int main() {
+    const char *num1_str = "0000000000000000000000000000000000000000000000000000000000000010"; 
+    const char *num2_str = "0000000000000000000000000000000000000000000000000000000000000011";
+
+    uint32_t a_high, a_low;
+    uint32_t b_high, b_low;
+    
+    parse_64bit_string(num1_str, &a_high, &a_low);
+    parse_64bit_string(num2_str, &b_high, &b_low);
+    
+    printf("Number 1 -> High: %u, Low: %u\n", a_high, a_low);
+    printf("Number 2 -> High: %u, Low: %u\n", b_high, b_low)
     return 0;
 }
