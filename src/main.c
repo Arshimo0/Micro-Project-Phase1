@@ -9,6 +9,18 @@ uint32_t bin_str_to_uint32(const char *str) {
     }
     return result;
 }
+void parse_64bit_string(const char *str, uint32_t *high, uint32_t *low) {
+    char high_str[33];
+    char low_str[33];
+
+    strncpy(high_str, str, 32);
+    high_str[32] = '\0';
+    strncpy(low_str, str + 32, 32);
+    low_str[32] = '\0';
+
+    *high = bin_str_to_uint32(high_str);
+    *low  = bin_str_to_uint32(low_str);
+}
 
 int main() {
     return 0;
