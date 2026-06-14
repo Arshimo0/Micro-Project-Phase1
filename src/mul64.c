@@ -12,3 +12,15 @@ for (int i = 0; i < 32; ++i)
     l = (l << 1) | (uint32_t)(s[i + 32] - '0');
 *hi = h; *lo = l;
 }
+
+static double cpu_hz(void) {
+    uint32_t a, b, c, d;
+    __asm__ volatile("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(0));
+    uint32_t maxleaf = a;
+    if (maxleaf >= 0x15) {
+        __asm__ volatile("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(0x15));
+        /* a = denom, b = numer, c = core crystal Hz */
+        if (a && b && c) return (double)c * (double)b / (double)a;
+    }
+    return 0.0; /* caller substitutes a known base clock if 0 */
+}
