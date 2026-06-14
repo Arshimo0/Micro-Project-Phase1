@@ -13,6 +13,16 @@ for (int i = 0; i < 32; ++i)
 *hi = h; *lo = l;
 }
 
+/* ---- format 128-bit value (4 limbs, MSW first) -> 128-char binary ---- */
+static void format128(uint32_t w3, uint32_t w2, uint32_t w1, uint32_t w0, char *out) {
+uint32_t w[4] = { w3, w2, w1, w0 };
+char *p = out;
+for (int k = 0; k < 4; ++k)
+for (int b = 31; b >= 0; --b)
+*p++ = (char)('0' + ((w[k] >> b) & 1u));
+*p = '\0';
+}
+
 static double cpu_hz(void) {
     uint32_t a, b, c, d;
     __asm__ volatile("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(0));
