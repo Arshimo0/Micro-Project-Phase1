@@ -34,3 +34,20 @@ static double cpu_hz(void) {
     }
     return 0.0; /* caller substitutes a known base clock if 0 */
 }
+
+int main(void) {
+char sa[80], sb[80], out[129];
+if (scanf("%79s %79s", sa, sb) != 2) return 1;
+
+uint32_t aH, aL, bH, bL;
+parse64(sa, &aH, &aL);
+parse64(sb, &bH, &bL);
+
+uint32_t w0, w1, w2, w3; /* 128-bit result, little-endian limbs */
+uint32_t t0, t1; /* RDTSC samples */
+
+/* Assembly block will be injected here */
+
+return 0;
+}
+
