@@ -1,5 +1,5 @@
 AS = gcc
-ASFLAGS = -m32 -nostdlib
+ASFLAGS = -m32 -nostdlib 
 
 all: main
 
