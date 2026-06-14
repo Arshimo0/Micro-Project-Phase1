@@ -1,10 +1,10 @@
-AS = gcc
-ASFLAGS = -m32 -nostdlib 
+CC = gcc
+CFLAGS = -m32 -O2 -fno-pic -no-pie -Wall
 
-all: main
+all: mul64
 
-main: main.S
-	$(AS) $(ASFLAGS) main.S -o main
+mul64: mul64.c
+$(CC) $(CFLAGS) -o mul64 mul64.c
 
 clean:
-	rm -f main
+rm -f mul64
