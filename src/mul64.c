@@ -53,41 +53,41 @@ int main(void) {
 
 /* ===== MEASURED REGION: nothing but RDTSC + multiply ===== */
 __asm__ volatile (
-        "rdtsc                  \n\t"
-        "mov    %%eax, %[t0]    \n\t"
+            "rdtsc\n\t"
+            "movl %%eax, %[t0]\n\t"
 
-        /* w0:w1 = aL * bL */
-        "mov    %[aL], %%eax    \n\t"
-        "mul    %[bL]           \n\t"   /* edx:eax = aL*bL */
-        "mov    %%eax, %[w0]    \n\t"
-        "mov    %%edx, %[w1]    \n\t"
+            "movl %[aL], %%eax\n\t"
+            "mull %[bL]\n\t"
+            "movl %%eax, %[w0]\n\t"
+            "movl %%edx, %%ecx\n\t"
 
-        /* w2:w3 = aH * bH */
-        "mov    %[aH], %%eax    \n\t"
-        "mul    %[bH]           \n\t"
-        "mov    %%eax, %[w2]    \n\t"
-        "mov    %%edx, %[w3]    \n\t"
+            "movl %[aH], %%eax\n\t"
+            "mull %[bH]\n\t"
+            "movl %%eax, %%ebx\n\t"
+            "movl %%edx, %[w3]\n\t"
 
-        /* cross = aL * bH, add into w1:w2:w3 */
-        "mov    %[aL], %%eax    \n\t"
-        "mul    %[bH]           \n\t"
-        "add    %%eax, %[w1]    \n\t"
-        "adc    %%edx, %[w2]    \n\t"
-        "adc    $0,   %[w3]     \n\t"
+            "movl %[aL], %%eax\n\t"
+            "mull %[bH]\n\t"
+            "addl %%eax, %%ecx\n\t"
+            "adcl %%edx, %%ebx\n\t"
+            "adcl $0, %[w3]\n\t"
 
-        /* cross = aH * bL, add into w1:w2:w3 */
-        "mov    %[aH], %%eax    \n\t"
-        "mul    %[bL]           \n\t"
-        "add    %%eax, %[w1]    \n\t"
-        "adc    %%edx, %[w2]    \n\t"
-        "adc    $0,   %[w3]     \n\t"
+            "movl %[aH], %%eax\n\t"
+            "mull %[bL]\n\t"
+            "addl %%eax, %%ecx\n\t"
+            "adcl %%edx, %%ebx\n\t"
+            "adcl $0, %[w3]\n\t"
 
-        "rdtsc                  \n\t"
-        "mov    %%eax, %[t1]    \n\t"
-        : [w0]"=&rm"(w0), [w1]"=&rm"(w1), [w2]"=&rm"(w2), [w3]"=&rm"(w3),
-          [t0]"=&rm"(t0), [t1]"=&rm"(t1)
-        : [aL]"rm"(aL), [aH]"rm"(aH), [bL]"rm"(bL), [bH]"rm"(bH)
-        : "eax", "edx", "cc"
+            "movl %%ecx, %[w1]\n\t"
+            "movl %%ebx, %[w2]\n\t"
+
+            "rdtsc\n\t"
+            "movl %%eax, %[t1]\n\t"
+
+            : [w0]"=m"(w0), [w1]"=m"(w1), [w2]"=m"(w2), [w3]"=m"(w3),
+              [t0]"=r"(t0), [t1]"=r"(t1)
+            : [aL]"m"(aL), [aH]"m"(aH), [bL]"m"(bL), [bH]"m"(bH)
+            : "eax", "edx", "ecx", "ebx", "cc"
     );
     /* ===== END MEASURED REGION ===== */
 
