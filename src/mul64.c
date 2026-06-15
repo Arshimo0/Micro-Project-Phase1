@@ -97,8 +97,10 @@ __asm__ volatile (
     double hz = cpu_hz();
     printf("%s\n", out);
     printf("cycles = %u\n", cycles);
-    if (hz > 0.0) printf("time   = %.3e s\n", (double)cycles / hz);
-    else          printf("time   = (set base clock; CPUID 15h unavailable)\n");
+    if (hz > 0.0) 
+        printf("time   = %.9f s\n", (double)cycles / hz);    
+    else          
+        printf("time   = (set base clock; CPUID 15h unavailable)\n");
     return 0;
 
 return 0;
