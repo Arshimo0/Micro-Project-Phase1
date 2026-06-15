@@ -46,7 +46,55 @@ parse64(sb, &bH, &bL);
 uint32_t w0, w1, w2, w3; /* 128-bit result, little-endian limbs */
 uint32_t t0, t1; /* RDTSC samples */
 
-/* Assembly block will be injected here */
+/* ===== MEASURED REGION: nothing but RDTSC + multiply ===== */
+__asm__ volatile (
+        "rdtsc                  \n\t"
+        "mov    %%eax, %[t0]    \n\t"
+
+        /* w0:w1 = aL * bL */
+        "mov    %[aL], %%eax    \n\t"
+        "mul    %[bL]           \n\t"   /* edx:eax = aL*bL */
+        "mov    %%eax, %[w0]    \n\t"
+        "mov    %%edx, %[w1]    \n\t"
+
+        /* w2:w3 = aH * bH */
+        "mov    %[aH], %%eax    \n\t"
+        "mul    %[bH]           \n\t"
+        "mov    %%eax, %[w2]    \n\t"
+        "mov    %%edx, %[w3]    \n\t"
+
+        /* cross = aL * bH, add into w1:w2:w3 */
+        "mov    %[aL], %%eax    \n\t"
+        "mul    %[bH]           \n\t"
+        "add    %%eax, %[w1]    \n\t"
+        "adc    %%edx, %[w2]    \n\t"
+        "adc    $0,   %[w3]     \n\t"
+
+        /* cross = aH * bL, add into w1:w2:w3 */
+        "mov    %[aH], %%eax    \n\t"
+        "mul    %[bL]           \n\t"
+        "add    %%eax, %[w1]    \n\t"
+        "adc    %%edx, %[w2]    \n\t"
+        "adc    $0,   %[w3]     \n\t"
+
+        "rdtsc                  \n\t"
+        "mov    %%eax, %[t1]    \n\t"
+        : [w0]"=&rm"(w0), [w1]"=&rm"(w1), [w2]"=&rm"(w2), [w3]"=&rm"(w3),
+          [t0]"=&rm"(t0), [t1]"=&rm"(t1)
+        : [aL]"rm"(aL), [aH]"rm"(aH), [bL]"rm"(bL), [bH]"rm"(bH)
+        : "eax", "edx", "cc"
+    );
+    /* ===== END MEASURED REGION ===== */
+
+    format128(w3, w2, w1, w0, out);
+
+    uint32_t cycles = t1 - t0;        /* 32-bit delta is plenty for this */
+    double hz = cpu_hz();
+    printf("%s\n", out);
+    printf("cycles = %u\n", cycles);
+    if (hz > 0.0) printf("time   = %.3e s\n", (double)cycles / hz);
+    else          printf("time   = (set base clock; CPUID 15h unavailable)\n");
+    return 0;
 
 return 0;
 }
